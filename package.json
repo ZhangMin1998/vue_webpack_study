@@ -4,14 +4,45 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "npm run dev",
+    "dev": "cross-env NODE_ENV=development webpack serve --config ./config/webpack.dev.js",
+    "build": "cross-env NODE_ENV=production webpack --config ./config/webpack.prod.js"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "browserlist": [
-    "last 2 verson",
-    "> 1%",
-    "not dead"
-  ]
+  "devDependencies": {
+    "@babel/eslint-parser": "^7.22.10",
+    "@babel/preset-env": "^7.22.10",
+    "@vue/cli-plugin-babel": "^5.0.8",
+    "babel-loader": "^9.1.3",
+    "copy-webpack-plugin": "^11.0.0",
+    "cross-env": "^7.0.3",
+    "css-loader": "^6.8.1",
+    "css-minimizer-webpack-plugin": "^5.0.1",
+    "eslint": "^8.47.0",
+    "eslint-webpack-plugin": "^4.0.1",
+    "html-webpack-plugin": "^5.5.3",
+    "image-minimizer-webpack-plugin": "^3.8.3",
+    "imagemin": "^8.0.1",
+    "less-loader": "^11.1.3",
+    "mini-css-extract-plugin": "^2.7.6",
+    "postcss-loader": "^7.3.3",
+    "postcss-preset-env": "^9.1.1",
+    "sass-loader": "^13.3.2",
+    "stylus-loader": "^7.1.3",
+    "terser-webpack-plugin": "^5.3.9",
+    "vue-loader": "^17.2.2",
+    "vue-style-loader": "^4.1.3",
+    "webpack": "^5.88.2",
+    "webpack-cli": "^5.1.4",
+    "webpack-dev-server": "^4.15.1"
+  },
+  "dependencies": {
+    "eslint-plugin-vue": "^9.17.0",
+    "vue": "^3.3.4",
+    "vue-router": "^4.2.4"
+  },
+  "browserslist": ["last 2 version", "> 1%", "not dead"]
 }

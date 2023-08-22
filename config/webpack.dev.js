@@ -1,11 +1,14 @@
 // Node.js的核心模块，专门用来处理文件路径.
 const path = require("path")
-const ESLintPlugin = require("eslint-webpack-plugin")
+const ESLintWebpackPlugin = require("eslint-webpack-plugin")
 const HtmlWebpackPlugin = require('html-webpack-plugin')
+const { VueLoaderPlugin } = require('vue-loader')
+const { DefinePlugin } = require("webpack")
 
 const getStyleLoaders = (proProcessor) => {
   return [
-    MiniCssExtractPlugin.loader, // 提取css成单独文件
+    // MiniCssExtractPlugin.loader, // 提取css成单独文件
+    "vue-style-loader",
     "css-loader", 
     {
       loader: "postcss-loader",
@@ -23,7 +26,7 @@ const getStyleLoaders = (proProcessor) => {
 
 module.exports = {
   // 模式
-  mode: 'production',
+  mode: 'development',
   devtool: 'cheap-module-source-map',
   entry: './src/main.js',
   output: {
@@ -35,100 +38,81 @@ module.exports = {
   },
   // 加载器
   module: {
-    rules: [
-      // loader配置
+    rules:[
+      // ---------处理样式-----------
       {
-        oneOf: [
-          // ---------处理样式-----------
-          {
-            test: /\.css$/, // // 用来匹配 .css 结尾的文件
-            use: getStyleLoaders(),
-          },
-          {
-            test: /\.less$/,
-            use: getStyleLoaders('less-loader'),
-          },
-          {
-            test: /\.s[ac]ss$/,
-            use: getStyleLoaders('sass-loader'),
-          },
-          {
-            test: /\.styl$/,
-            use: getStyleLoaders('stylus-loader'),
-          },
-          // ---------处理图片-----------
-          {
-            test: /\.(png|jpe?g|gif|webp)$/,
-            type: "asset",
-            parser: {
-              dataUrlCondition: {
-                // 小于5kb的图片会被base64处理
-                // 优点：减少请求数量
-                // 缺点：体积变得更大
-                maxSize: 5 * 1024
-              }
-            },
-            generator: {
-              // 输出图片名称
-              // hash:8哈希值取8位
-              // [ext]: 使用之前的文件扩展名
-              // [query]: 添加之前的query参数
-              filename: 'static/images/[hash:8][ext][query]'
-            }
-          },
-          // ---------处理字体图标-----------
-          {
-            test: /\.(ttf|woff2?|mp3|mp4|avi)$/,
-            type: "asset/resource",
-            generator: {
-              filename: "static/media/[hash:8][ext][query]",
-            },
-          },
-          // ---------babel-----------
-          {
-            test: /\.jsx?$/,
-            exclude: /node_modules/, // 排除node_modules代码不编译
-            // include: path.resolve(__dirname, "../src"), // 也可以用包含
-            loader: "babel-loader",
-            options: {
-              // presets: ["@babel/preset-env"], // 单独建文件写
-              cacheDirectory: true, // 开启babel编译缓存
-              cacheCompression: false, // 缓存文件不要压缩
-            },
-            // use: [
-            //   {
-            //     loader: "thread-loader", // 开启多进程
-            //     options: {
-            //       workers: threads, // 数量
-            //     },
-            //   },
-            //   {
-            //     loader: "babel-loader",
-            //     options: {
-            //       cacheDirectory: true, // 开启babel编译缓存
-            //       cacheCompression: false, // 缓存文件不要压缩
-            //       plugins: ["@babel/plugin-transform-runtime"], // 减少代码体积
-            //     },
-            //   },
-            // ]
-          },
-        ]
+        test: /\.css$/, // // 用来匹配 .css 结尾的文件
+        use: getStyleLoaders(),
+      },
+      {
+        test: /\.less$/,
+        use: getStyleLoaders('less-loader'),
+      },
+      {
+        test: /\.s[ac]ss$/,
+        use: getStyleLoaders('sass-loader'),
+      },
+      {
+        test: /\.styl$/,
+        use: getStyleLoaders('stylus-loader'),
+      },
+      // ---------处理图片-----------
+      {
+        test: /\.(png|jpe?g|gif|webp)$/,
+        type: "asset",
+        parser: {
+          dataUrlCondition: {
+            // 小于5kb的图片会被base64处理
+            // 优点：减少请求数量
+            // 缺点：体积变得更大
+            maxSize: 5 * 1024
+          }
+        },
+        generator: {
+          // 输出图片名称
+          // hash:8哈希值取8位
+          // [ext]: 使用之前的文件扩展名
+          // [query]: 添加之前的query参数
+          filename: 'static/images/[hash:8][ext][query]'
+        }
+      },
+      // ---------处理字体图标-----------
+      {
+        test: /\.(ttf|woff2?|mp3|mp4|avi)$/,
+        type: "asset/resource",
+        generator: {
+          filename: "static/media/[hash:8][ext][query]",
+        },
+      },
+      // ---------babel-----------
+      {
+        test: /\.js?$/,
+        exclude: /node_modules/, // 排除node_modules代码不编译
+        // include: path.resolve(__dirname, "../src"), // 也可以用包含
+        loader: "babel-loader",
+        options: {
+          // presets: ["@babel/preset-env"], // 单独建文件写
+          cacheDirectory: true, // 开启babel编译缓存
+          cacheCompression: false, // 缓存文件不要压缩
+        }
+      },
+      {
+        test: /\.vue$/,
+        loader: 'vue-loader'
       }
     ]
   },
   // 插件
   plugins: [
-    new ESLintPlugin({
-      // 指定检查文件的根目录
+    new ESLintWebpackPlugin({
       context: path.resolve(__dirname, "../src"),
-      exclude: "node_modules", // 默认值
-      cache: true, // 开启缓存
-      // 缓存目录
+      // include: path.resolve(__dirname, "../src"), // 也可以用包含
+      exclude: "node_modules",
+      cache: true,
       cacheLocation: path.resolve(
         __dirname,
         "../node_modules/.cache/.eslintcache"
       ),
-      // threads, // 开启多进程和设置进程数量
     }),
     new HtmlWebpackPlugin({
       // 以 public/index.html 为模板创建文件
@@ -145,7 +129,20 @@ module.exports = {
     // new TerserPlugin({
     //   parallel: threads
     // })
+    new VueLoaderPlugin(),
+    // 解决页面警告
+    // cross-env定义的环境变量给打包工具使用
+    // DefinePlugin定义的环境变量给源代码使用
+    new DefinePlugin({
+      __VUE_OPTIONS_API__: "true",
+      __VUE_PROD_DEVTOOLS__: "false",
+    }),
   ],
+  // webpack解析模块加载选项
+  resolve: {
+    // 自动补全文件拓展名
+    extensions: [".vue", ".js","json"]
+  },
   optimization: {
     splitChunks: {
       chunks: 'all'
@@ -158,8 +155,8 @@ module.exports = {
     open: true,
     host: "localhost",
     port: 3000,
-    hot: true,
+    hot: true, // 开启HMR
     // compress: true,
-    // historyApiFallback: true, // 解决vue-router刷新404问题
+    historyApiFallback: true, // 解决vue-router刷新404问题
   },
 }
